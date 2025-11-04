@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class Flight(Base):
     __tablename__ = "flights"
@@ -14,3 +15,6 @@ class Flight(Base):
     aircraft_id = Column(Integer, ForeignKey("aircrafts.aircraft_id"))
     status = Column(String)
     distance_km = Column(Integer)
+
+    flight_crews = relationship("FlightCrew", back_populates="flight")
+    flight_pilots = relationship("FlightPilot", back_populates="flight")

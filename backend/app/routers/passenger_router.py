@@ -20,6 +20,11 @@ def get_passenger(passenger_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Passenger not found")
     return passenger
 
+@router.get("/by-flight/{flight_number}")
+def get_passengers_by_flight(flight_number: str, db: Session = Depends(get_db)):
+    passengers = db.query(Passenger).filter(Passenger.flight_number == flight_number).all()
+    return passengers
+
 @router.put("/{passenger_id}", response_model=PassengerResponse)
 def update_passenger(passenger_id: int, passenger_data: PassengerCreate, db: Session = Depends(get_db)):
     passenger = passenger_service.update_passenger(passenger_id, passenger_data, db)

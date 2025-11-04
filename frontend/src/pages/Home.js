@@ -46,7 +46,7 @@ export default function Home() {
 
         <button
           style={{ ...buttonStyle, backgroundColor: "#E74C3C" }}
-          onClick={() => navigate("/admin")}
+          onClick={() => navigate("/login")}
         >
           🧑‍✈️ Admin Girişi
         </button>

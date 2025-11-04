@@ -4,6 +4,19 @@ import "./FlightSearch.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
+const getFlightDuration = (departure, arrival) => {
+  const dep = new Date(departure);
+  const arr = new Date(arrival);
+  const diffMs = arr - dep;
+
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${hours}sa ${minutes}dk`;
+};
+
+const getAirlineCode = (flightNumber) => flightNumber.substring(0, 2);
+
 export default function FlightSearch() {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,9 +44,10 @@ export default function FlightSearch() {
             <div className="flight-card" key={index}>
               <div className="airline-info">
                 <img
-                  src="/plane-icon.png"
-                  alt="airline"
+                  src={`/airline-logos/${getAirlineCode(f.flight_number)}.png`}
+                  alt={f.airline_name}
                   className="airline-logo"
+                  onError={(e) => (e.target.src = "/plane-icon.png")}
                 />
                 <div>
                   <strong>{f.flight_number}</strong>
@@ -55,7 +69,7 @@ export default function FlightSearch() {
                 </div>
 
                 <div className="duration">
-                  <div>2sa 45dk</div>
+                  <div>{getFlightDuration(f.departure_time, f.arrival_time)}</div>
                   <div className="direct">Direkt</div>
                 </div>
 

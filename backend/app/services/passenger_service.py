@@ -25,6 +25,8 @@ def update_passenger(passenger_id: int, passenger_data: PassengerCreate, db: Ses
     db.refresh(passenger)
     return passenger
 
+
+
 def delete_passenger(passenger_id: int, db: Session):
     passenger = get_passenger(passenger_id, db)
     if not passenger:

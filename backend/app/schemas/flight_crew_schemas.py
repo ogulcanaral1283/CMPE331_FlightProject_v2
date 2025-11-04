@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
+
 class FlightCrewBase(BaseModel):
     flight_id: int
     attendant_id: int
+   
 
 class FlightCrewCreate(FlightCrewBase):
     pass

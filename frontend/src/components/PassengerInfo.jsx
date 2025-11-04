@@ -1,143 +1,115 @@
-import React, { useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./PassengerInfo.css";
-
-
-const API_URL = process.env.REACT_APP_API_URL;
+import countries from "../data/countries";
 
 
 export default function PassengerInfo() {
   const { flightNumber } = useParams();
-  const [searchParams] = useSearchParams();
-  const selectedSeat = searchParams.get("seat");
   const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    gender: "",
-    nationality: "",
-  });
+  const { adults = 1, students = 0, children = 0 } = state || {};
 
-  const [success, setSuccess] = useState(false); // ✅ başarı durumu
-  const [loading, setLoading] = useState(false);
+  const total = adults + students + children;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+  const [passengers, setPassengers] = useState([]);
+
+
+  useEffect(() => {
+    const list = [];
+
+    for (let i = 0; i < adults; i++)
+      list.push({ type: "Adult", full_name: "", age: "", gender: "", nationality: "" });
+
+    for (let i = 0; i < students; i++)
+      list.push({ type: "Student", full_name: "", age: "", gender: "", nationality: "" });
+
+    for (let i = 0; i < children; i++)
+      list.push({ type: "Child", full_name: "", age: "", gender: "", nationality: "" });
+
+    setPassengers(list);
+  }, [adults, students, children]);
+
+  const update = (index, field, value) => {
+    setPassengers(prev => {
+      const modified = [...prev];
+      modified[index] = { ...modified[index], [field]: value };
+      return modified;
+    });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const payload = {
-      flight_number: flightNumber,
-      full_name: form.name,
-      age: parseInt(form.age),
-      gender: form.gender,
-      nationality: form.nationality,
-      seat_type: "Economy",
-      seat_number: selectedSeat,
-    };
-
-    try {
-      const res = await fetch(`${API_URL}/passengers/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSuccess(true); // ✅ bilet başarıyla alındı
-      } else {
-        const err = await res.json();
-        alert("Bir hata oluştu: " + err.detail);
-      }
-    } catch (error) {
-      alert("Sunucuya ulaşılamadı: " + error.message);
-    } finally {
-      setLoading(false);
+  const handleNext = () => {
+    if (passengers.some(p => !p.full_name || !p.age || !p.gender || !p.nationality)) {
+      alert("Lütfen tüm bilgileri doldurun ✅");
+      return;
     }
-  };
 
-  // ✅ Eğer bilet başarıyla alındıysa mesaj ve ana sayfaya dön butonu
-  if (success) {
-    return (
-      <div className="success-container">
-        <h2>🎉 Biletiniz başarıyla alındı!</h2>
-        <p>
-          <strong>{form.name}</strong> adlı yolcu için {flightNumber} uçuşunda{" "}
-          koltuk <strong>{selectedSeat}</strong> rezerve edilmiştir.
-        </p>
-        <button className="home-btn" onClick={() => navigate("/flights")}>
-          🏠 Ana Sayfaya Dön
-        </button>
-      </div>
-    );
-  }
+    navigate(`/flights/${flightNumber}/select-seats`, {
+      state: { 
+        passengers
+         }
+    });
+  };
 
   return (
-    <div className="passenger-form">
-      <h2>✈️ Yolcu Bilgileri</h2>
-      <p>
-        Uçuş: <strong>{flightNumber}</strong> | Koltuk:{" "}
-        <strong>{selectedSeat}</strong>
-      </p>
+    <div className="passenger-info-container">
+      <div className="passenger-info-card">
 
-      <form onSubmit={handleSubmit}>
-        <label>
-          Ad Soyad:
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        <h2>🧳 Yolcu Bilgileri</h2>
+        <p>Uçuş: <strong>{flightNumber}</strong> | Toplam: {total} Yolcu</p>
 
-        <label>
-          Yaş:
-          <input
-            type="number"
-            name="age"
-            min="1"
-            value={form.age}
-            onChange={handleChange}
-            required
-          />
-        </label>
+        {passengers.map((p, i) => (
+          <div key={i} className="passenger-box">
+            <h3>{i + 1}. Yolcu — {p.type}</h3>
 
-        <label>
-          Cinsiyet:
-          <select
-            name="gender"
-            value={form.gender}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seçiniz</option>
-            <option value="Male">Erkek</option>
-            <option value="Female">Kadın</option>
-          </select>
-        </label>
+            <input
+              type="text"
+              placeholder="Ad Soyad"
+              value={p.full_name}
+              onChange={(e) => update(i, "full_name", e.target.value)}
+              required
+            />
 
-        <label>
-          Uyruk:
-          <input
-            type="text"
-            name="nationality"
-            value={form.nationality}
-            onChange={handleChange}
-            required
-          />
-        </label>
+            <input
+              type="number"
+              placeholder="Yaş"
+              min="1"
+              value={p.age}
+              onChange={(e) => update(i, "age", e.target.value)}
+              required
+            />
 
-        <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? "Kaydediliyor..." : "Kaydet"}
+            <select
+              value={p.gender}
+              onChange={(e) => update(i, "gender", e.target.value)}
+              required
+            >
+              <option value="">Cinsiyet</option>
+              <option value="Male">Erkek</option>
+              <option value="Female">Kadın</option>
+            </select>
+
+            <select
+              value={p.nationality}
+              onChange={(e) => update(i, "nationality", e.target.value)}
+              required
+            >
+              <option value="">Nationality</option>
+              {countries.map((c, index) => (
+                <option key={index} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+          </div>
+        ))}
+
+        <button className="submit-btn" onClick={handleNext}>
+          ✅ Koltuk Seçimine Geç
         </button>
-      </form>
+      </div>
     </div>
   );
 }
