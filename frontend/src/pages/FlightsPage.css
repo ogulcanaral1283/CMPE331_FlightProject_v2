@@ -2,3 +2,38 @@
   background-color: #d0ebff !important;
   transition: background-color 0.3s ease;
 }
+.ag-row-focus:hover {
+  background-color: #a5d8ff !important;
+}
+.ag-row-selected {
+  background-color: #74c0fc !important;
+  transition: background-color 0.3s ease;
+}
+.ag-row-selected:hover {
+  background-color: #4dabf7 !important;
+}
+.ag-theme-alpine .ag-row-hover {
+  background-color: #e7f5ff !important;
+}
+.ag-theme-alpine .ag-row-hover:hover {
+  background-color: #d0ebff !important;
+}
+.ag-theme-alpine .ag-row-selected.ag-row-hover {
+  background-color: #4dabf7 !important;
+}
+.ag-theme-alpine .ag-row-selected.ag-row-hover:hover {
+  background-color: #339af0 !important;
+}
+.ag-theme-alpine .ag-row-focus.ag-row-hover {
+  background-color: #a5d8ff !important;
+}
+.ag-theme-alpine .ag-row-focus.ag-row-hover:hover {
+  background-color: #74c0fc !important;
+}
+.ag-theme-alpine .ag-row-focused {
+  outline: 2px solid #339af0 !important;
+}
+.ag-theme-alpine .ag-row-focused:hover {
+  outline: 2px solid #1c7ed6 !important;
+}
+

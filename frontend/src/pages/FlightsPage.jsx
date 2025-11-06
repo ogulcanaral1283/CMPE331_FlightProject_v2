@@ -129,7 +129,7 @@ const handleRowClick = (flight) => {
   );
 
   if (confirmDelete) {
-    handleDeleteFlight(flight.flight_id);
+    handleDeleteFlight(flight.flight_number);
   } else {
     setDeleteMode(false);
     setSelectedFlight(null);
