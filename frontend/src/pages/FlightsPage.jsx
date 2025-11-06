@@ -4,6 +4,7 @@ import axios from "axios";
 import AdminSidebar from "../components/AdminSidebar";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import "./FlightsPage.css";
 
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -15,6 +16,7 @@ export default function FlightsPage() {
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [passengers, setPassengers] = useState([]);
   const [crewData, setCrewData] = useState(null);
+  const [deleteMode, setDeleteMode] = useState(false);
   const [showAddFlight, setShowAddFlight] = useState(false);
   const [newFlight, setNewFlight] = useState({
     flight_number: "",
@@ -26,7 +28,7 @@ export default function FlightsPage() {
     status: "Scheduled",
   });
 
-  const fetchFlights = () => {
+  const fetchFlights = async () => {
     axios
       .get(`${API_URL}/flights`)
       .then((res) => setRowData(res.data))
@@ -36,6 +38,8 @@ export default function FlightsPage() {
   useEffect(() => {
     fetchFlights();
   }, []);
+
+
 
   const handleFlightClick = async (flightNumber) => {
     setSelectedFlight(flightNumber);
@@ -60,25 +64,77 @@ export default function FlightsPage() {
     }
   };
 
-  const handleAddFlight = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_URL}/flights`, newFlight);
-      setShowAddFlight(false);
-      setNewFlight({
-        flight_number: "",
-        airline_id: "",
-        origin_airport: "",
-        destination_airport: "",
-        departure_time: "",
-        arrival_time: "",
-        status: "Scheduled",
-      });
-      fetchFlights();
-    } catch (err) {
-      console.error("Uçuş eklenemedi", err);
+const handleAddFlight = async (e) => {
+  e.preventDefault();
+  console.log("✅ handleAddFlight tetiklendi!");
+  console.log("Gönderilen veri:", newFlight);
+
+  try {
+    // 🧩 FastAPI'nin beklediği formatlara çeviriyoruz
+    const formattedFlight = {
+      airline_id: Number(newFlight.airline_id),
+      flight_number: newFlight.flight_number.toUpperCase(),
+      origin_airport: newFlight.origin_airport.toUpperCase(),
+      destination_airport: newFlight.destination_airport.toUpperCase(),
+      departure_time: `${newFlight.departure_time}:00`,
+      arrival_time: `${newFlight.arrival_time}:00`,
+      aircraft_id: 12,            // örnek, formdan alıyorsan orayı bağla
+      status: newFlight.status || "Scheduled",
+      distance_km: 2278.7         // opsiyonel ama gerekliyse hesapla veya sabitle
+};
+
+    await axios.post(`${API_URL}/flights`, formattedFlight);
+
+    setShowAddFlight(false);
+    setNewFlight({
+      flight_number: "",
+      airline_id: "",
+      origin_airport: "",
+      destination_airport: "",
+      departure_time: "",
+      arrival_time: "",
+      status: "Scheduled",
+    });
+
+    await fetchFlights();
+  } catch (err) {
+    console.error("❌ Uçuş eklenemedi:", err.response?.data || err.message);
+    console.log(err.response?.data);
+    if (err.response?.status === 422) {
+      alert("Veri formatı hatalı! Sayısal ve tarih alanlarını kontrol et.");
     }
-  };
+  }
+};
+
+const handleDeleteFlight = async (flight_number) => {
+  try {
+    await axios.delete(`${API_URL}/flights/${flight_number}`);
+    alert("Uçuş başarıyla silindi!");
+    setDeleteMode(false);
+    setSelectedFlight(null);
+    await fetchFlights(); // tabloyu yenile
+  } catch (err) {
+    console.error("Uçuş silinemedi:", err.response?.data || err.message);
+    alert("Uçuş silinemedi. Lütfen tekrar deneyin.");
+  }
+};
+
+
+const handleRowClick = (flight) => {
+  if (!deleteMode) return; // silme modu aktif değilse hiçbir şey yapma
+  setSelectedFlight(flight);
+
+  const confirmDelete = window.confirm(
+    `${flight.flight_number} uçuşunu silmek istediğinize emin misiniz?`
+  );
+
+  if (confirmDelete) {
+    handleDeleteFlight(flight.flight_id);
+  } else {
+    setDeleteMode(false);
+    setSelectedFlight(null);
+  }
+};
 
   // kolonlar
   const flightColumns = [
@@ -138,11 +194,29 @@ export default function FlightsPage() {
         <h2
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
+            gap: "10px",
+            marginBottom: "10px",
           }}
         >
           ✈️ Uçuş Listesi
+
+          <button
+            onClick={() => setDeleteMode(!deleteMode)}
+            style={{
+              background: deleteMode ? "#dc3545" : "#6c757d",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              marginRight: "8px"
+          }}
+          >
+            🗑️ Uçuş Sil
+          </button>
+
           <button
             onClick={() => setShowAddFlight(true)}
             style={{
@@ -164,6 +238,7 @@ export default function FlightsPage() {
             rowData={rowData}
             columnDefs={flightColumns}
             pagination
+            onRowClicked={(params) => handleRowClick(params.data)}
             paginationPageSize={10}
             animateRows
           />
@@ -194,9 +269,9 @@ export default function FlightsPage() {
                 rowData={[
                   ...crewData.pilots.map((p) => ({
                     full_name: p.full_name,
-                    role: `Pilot (${p.rank})`,
-                    gender: "-",
-                    experience_years: p.experience_years,
+                    role: `Pilot (${p.license_level})`,
+                    gender: p.gender,
+                    experience_years: `${p.flight_hours}km`, // örnek dönüşüm
                   })),
                   ...crewData.crew.map((c) => ({
                     full_name: c.full_name,
@@ -313,7 +388,7 @@ export default function FlightsPage() {
                   </button>
                   <button
                     
-                    onClick={handleAddFlight}
+                    type="submit"
                     style={{
                       backgroundColor: "#28a745",
                       color: "#fff",

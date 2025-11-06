@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.routers.auth_router import router as auth_router
 from app.routers.users_router import router as users_router
+from app.routers.stats_router import router as stats_router
 
 
 
@@ -28,6 +29,7 @@ app.include_router(cabin_router.router)
 app.include_router(passenger_router.router)
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(stats_router.router, tags=["Stats"])
 
 @app.get("/")
 def root():

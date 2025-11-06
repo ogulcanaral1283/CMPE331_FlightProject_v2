@@ -53,9 +53,9 @@ def update_flight(flight_id: int, flight_data: FlightCreate, db: Session = Depen
         raise HTTPException(status_code=404, detail="Flight not found")
     return flight
 
-@router.delete("/{flight_id}")
-def delete_flight(flight_id: int, db: Session = Depends(get_db)):
-    result = flights_service.delete_flight(flight_id, db)
+@router.delete("/{flight_number}")
+def delete_flight(flight_number: str, db: Session = Depends(get_db)):
+    result = flights_service.delete_flight(flight_number, db)
     if not result:
         raise HTTPException(status_code=404, detail="Flight not found")
     return {"detail": "Flight deleted successfully"}

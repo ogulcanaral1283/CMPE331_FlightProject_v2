@@ -73,8 +73,8 @@ def update_flight(flight_id: int, flight_data: FlightCreate, db: Session):
     db.refresh(flight)
     return flight
 
-def delete_flight(flight_id: int, db: Session):
-    flight = get_flight_by_id(flight_id, db)
+def delete_flight(flight_number: str, db: Session):
+    flight = get_flight_by_number(flight_number, db)
     if not flight:
         return None
     db.delete(flight)

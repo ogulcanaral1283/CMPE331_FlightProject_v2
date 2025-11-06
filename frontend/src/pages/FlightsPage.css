@@ -1,0 +1,4 @@
+.ag-row-focus {
+  background-color: #d0ebff !important;
+  transition: background-color 0.3s ease;
+}
