@@ -5,11 +5,14 @@ import AdminSidebar from "../components/AdminSidebar";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import "./FlightsPage.css";
-
+import { FLIGHT_API_URL } from "../apiConfig";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API_URL = process.env.REACT_APP_API_URL;
+
+
+const API_URL = FLIGHT_API_URL;
 
 export default function FlightsPage() {
   const [rowData, setRowData] = useState([]);
@@ -64,77 +67,77 @@ export default function FlightsPage() {
     }
   };
 
-const handleAddFlight = async (e) => {
-  e.preventDefault();
-  console.log("✅ handleAddFlight tetiklendi!");
-  console.log("Gönderilen veri:", newFlight);
+  const handleAddFlight = async (e) => {
+    e.preventDefault();
+    console.log("✅ handleAddFlight tetiklendi!");
+    console.log("Gönderilen veri:", newFlight);
 
-  try {
-    // 🧩 FastAPI'nin beklediği formatlara çeviriyoruz
-    const formattedFlight = {
-      airline_id: Number(newFlight.airline_id),
-      flight_number: newFlight.flight_number.toUpperCase(),
-      origin_airport: newFlight.origin_airport.toUpperCase(),
-      destination_airport: newFlight.destination_airport.toUpperCase(),
-      departure_time: `${newFlight.departure_time}:00`,
-      arrival_time: `${newFlight.arrival_time}:00`,
-      aircraft_id: 12,            // örnek, formdan alıyorsan orayı bağla
-      status: newFlight.status || "Scheduled",
-      distance_km: 2278.7         // opsiyonel ama gerekliyse hesapla veya sabitle
-};
+    try {
+      // 🧩 FastAPI'nin beklediği formatlara çeviriyoruz
+      const formattedFlight = {
+        airline_id: Number(newFlight.airline_id),
+        flight_number: newFlight.flight_number.toUpperCase(),
+        origin_airport: newFlight.origin_airport.toUpperCase(),
+        destination_airport: newFlight.destination_airport.toUpperCase(),
+        departure_time: `${newFlight.departure_time}:00`,
+        arrival_time: `${newFlight.arrival_time}:00`,
+        aircraft_id: 12,            // örnek, formdan alıyorsan orayı bağla
+        status: newFlight.status || "Scheduled",
+        distance_km: 2278.7         // opsiyonel ama gerekliyse hesapla veya sabitle
+      };
 
-    await axios.post(`${API_URL}/flights`, formattedFlight);
+      await axios.post(`${API_URL}/flights`, formattedFlight);
 
-    setShowAddFlight(false);
-    setNewFlight({
-      flight_number: "",
-      airline_id: "",
-      origin_airport: "",
-      destination_airport: "",
-      departure_time: "",
-      arrival_time: "",
-      status: "Scheduled",
-    });
+      setShowAddFlight(false);
+      setNewFlight({
+        flight_number: "",
+        airline_id: "",
+        origin_airport: "",
+        destination_airport: "",
+        departure_time: "",
+        arrival_time: "",
+        status: "Scheduled",
+      });
 
-    await fetchFlights();
-  } catch (err) {
-    console.error("❌ Uçuş eklenemedi:", err.response?.data || err.message);
-    console.log(err.response?.data);
-    if (err.response?.status === 422) {
-      alert("Veri formatı hatalı! Sayısal ve tarih alanlarını kontrol et.");
+      await fetchFlights();
+    } catch (err) {
+      console.error("❌ Uçuş eklenemedi:", err.response?.data || err.message);
+      console.log(err.response?.data);
+      if (err.response?.status === 422) {
+        alert("Veri formatı hatalı! Sayısal ve tarih alanlarını kontrol et.");
+      }
     }
-  }
-};
+  };
 
-const handleDeleteFlight = async (flight_number) => {
-  try {
-    await axios.delete(`${API_URL}/flights/${flight_number}`);
-    alert("Uçuş başarıyla silindi!");
-    setDeleteMode(false);
-    setSelectedFlight(null);
-    await fetchFlights(); // tabloyu yenile
-  } catch (err) {
-    console.error("Uçuş silinemedi:", err.response?.data || err.message);
-    alert("Uçuş silinemedi. Lütfen tekrar deneyin.");
-  }
-};
+  const handleDeleteFlight = async (flight_number) => {
+    try {
+      await axios.delete(`${API_URL}/flights/${flight_number}`);
+      alert("Uçuş başarıyla silindi!");
+      setDeleteMode(false);
+      setSelectedFlight(null);
+      await fetchFlights(); // tabloyu yenile
+    } catch (err) {
+      console.error("Uçuş silinemedi:", err.response?.data || err.message);
+      alert("Uçuş silinemedi. Lütfen tekrar deneyin.");
+    }
+  };
 
 
-const handleRowClick = (flight) => {
-  if (!deleteMode) return; // silme modu aktif değilse hiçbir şey yapma
-  setSelectedFlight(flight);
+  const handleRowClick = (flight) => {
+    if (!deleteMode) return; // silme modu aktif değilse hiçbir şey yapma
+    setSelectedFlight(flight);
 
-  const confirmDelete = window.confirm(
-    `${flight.flight_number} uçuşunu silmek istediğinize emin misiniz?`
-  );
+    const confirmDelete = window.confirm(
+      `${flight.flight_number} uçuşunu silmek istediğinize emin misiniz?`
+    );
 
-  if (confirmDelete) {
-    handleDeleteFlight(flight.flight_number);
-  } else {
-    setDeleteMode(false);
-    setSelectedFlight(null);
-  }
-};
+    if (confirmDelete) {
+      handleDeleteFlight(flight.flight_number);
+    } else {
+      setDeleteMode(false);
+      setSelectedFlight(null);
+    }
+  };
 
   // kolonlar
   const flightColumns = [
@@ -212,7 +215,7 @@ const handleRowClick = (flight) => {
               borderRadius: "6px",
               cursor: "pointer",
               marginRight: "8px"
-          }}
+            }}
           >
             🗑️ Uçuş Sil
           </button>
@@ -387,7 +390,7 @@ const handleRowClick = (flight) => {
                     İptal
                   </button>
                   <button
-                    
+
                     type="submit"
                     style={{
                       backgroundColor: "#28a745",

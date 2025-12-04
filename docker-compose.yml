@@ -1,44 +1,122 @@
 version: "3.9"
 
 services:
-  backend:
-    build: ./backend
-    container_name: airline_backend
+  auth-service:
+    build: ./services/auth
+    container_name: auth_service
     ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
+      - "8010:8010"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - db
+
+  user-service:
+    build: ./services/user
+    container_name: user_service
+    ports:
+      - "8060:8060"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+
+  flight-service:
+    build: ./services/flight
+    container_name: flight_service
+    ports:
+      - "8020:8020"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+
+  passenger-service:
+    build: ./services/passenger
+    container_name: passenger_service
+    ports:
+      - "8030:8030"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+
+  aircraft-service:
+    build: ./services/aircraft
+    container_name: aircraft_service
+    ports:
+      - "8040:8040"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
+
+  crew-service:
+    build: ./services/crew
+    container_name: crew_service
+    ports:
+      - "8050:8050"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend
     container_name: airline_frontend
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
     environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
-      - CHOKIDAR_USEPOLLING=true 
+      REACT_APP_AUTH_URL: http://localhost:8010
+      REACT_APP_USER_URL: http://localhost:8060
+      REACT_APP_FLIGHT_URL: http://localhost:8020
+      REACT_APP_PASSENGER_URL: http://localhost:8030
+      REACT_APP_AIRCRAFT_URL: http://localhost:8040
+      REACT_APP_CREW_URL: http://localhost:8050
+      CHOKIDAR_USEPOLLING: true
+    depends_on:
+      - auth-service
+      - user-service
+      - flight-service
+      - passenger-service
+      - aircraft-service
+      - crew-service
     volumes:
-      -  ./frontend:/app         # ✅ tüm kodu mount et
-      -  /app/node_modules
+      - ./frontend:/app
+      - /app/node_modules
     command: npm start
 
   db:
     image: postgres:16
     container_name: airline_postgres
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5433:5432"
     volumes:

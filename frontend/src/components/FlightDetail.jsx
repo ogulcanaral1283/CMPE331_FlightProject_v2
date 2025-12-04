@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./FlightDetail.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { FLIGHT_API_URL } from "../apiConfig";
+
+const API_URL = FLIGHT_API_URL;
 
 export default function FlightDetail() {
   const { flightNumber } = useParams();
@@ -59,7 +61,7 @@ export default function FlightDetail() {
             ← Geri Dön
           </button>
 
-          <button className="continue-btn" 
+          <button className="continue-btn"
             onClick={() => navigate(`/flights/${flightNumber}/select-passengers`)}
           >
             Devam →

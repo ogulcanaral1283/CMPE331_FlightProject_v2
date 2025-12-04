@@ -3,19 +3,38 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 
-const API_URL = process.env.REACT_APP_API_URL;
-
+import { FLIGHT_API_URL, PASSENGER_API_URL, AIRCRAFT_API_URL } from "../apiConfig";
 
 export default function AdminDashboard() {
   const username = localStorage.getItem("username") || "Admin";
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState({
+    total_flights: 0,
+    total_passengers: 0,
+    total_airlines: 0
+  });
 
   useEffect(() => {
-    axios.get(`${API_URL}/stats`)
-      .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+    const fetchData = async () => {
+      try {
+        const [flightsRes, passengersRes, airlinesRes] = await Promise.all([
+          axios.get(`${FLIGHT_API_URL}/flights`),
+          axios.get(`${PASSENGER_API_URL}/passengers`),
+          axios.get(`${AIRCRAFT_API_URL}/airlines`)
+        ]);
+
+        setStats({
+          total_flights: flightsRes.data.length,
+          total_passengers: passengersRes.data.length,
+          total_airlines: airlinesRes.data.length
+        });
+      } catch (err) {
+        console.error("Stats yüklenemedi:", err);
+      }
+    };
+
+    fetchData();
   }, []);
-  
+
 
   return (
     <div style={styles.container}>

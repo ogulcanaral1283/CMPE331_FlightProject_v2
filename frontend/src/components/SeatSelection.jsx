@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import "./SeatSelection.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { FLIGHT_API_URL, PASSENGER_API_URL } from "../apiConfig";
 
 export default function SeatSelection() {
   const { flightNumber } = useParams();
@@ -19,7 +19,7 @@ export default function SeatSelection() {
 
   // ✅ Uçak tipi bilgisini al
   useEffect(() => {
-    fetch(`${API_URL}/flights/detail/${flightNumber}`)
+    fetch(`${FLIGHT_API_URL}/flights/detail/${flightNumber}`)
       .then((res) => res.json())
       .then((data) => {
         setFuselageType(data.fuselage_type);
@@ -31,7 +31,7 @@ export default function SeatSelection() {
 
   // ✅ Dolu koltukları çek
   useEffect(() => {
-    fetch(`${API_URL}/passengers/by-flight/${flightNumber}`)
+    fetch(`${FLIGHT_API_URL}/flights/${flightNumber}/passengers`)
       .then((res) => res.json())
       .then((data) => {
         const seats = data.map((p) => p.seat_number);
@@ -79,18 +79,26 @@ export default function SeatSelection() {
 
     try {
       for (const p of payload) {
-        await fetch(`${API_URL}/passengers/`, {
+        console.log("Sending passenger:", p);
+        const response = await fetch(`${PASSENGER_API_URL}/passengers/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(p),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Backend error:", errorData);
+          throw new Error(`Server error: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
       }
 
       navigate("/booking-success", {
         state: { flightNumber, seats: selectedSeats },
       });
     } catch (error) {
-      alert("⚠ Koltuk kaydı yapılırken hata oluştu!");
+      console.error("Error creating passenger:", error);
+      alert(`⚠ Koltuk kaydı yapılırken hata oluştu: ${error.message}`);
     }
   };
 
@@ -124,9 +132,8 @@ export default function SeatSelection() {
               return (
                 <React.Fragment key={seatId}>
                   <button
-                    className={`seat ${
-                      isBooked ? "booked" : ""
-                    } ${isSelected ? "selected" : ""}`}
+                    className={`seat ${isBooked ? "booked" : ""
+                      } ${isSelected ? "selected" : ""}`}
                     onClick={() => handleSeatClick(seatId)}
                     disabled={isBooked}
                   >
@@ -138,8 +145,8 @@ export default function SeatSelection() {
                     col === "C") && <div className="aisle-space" />}
                   {(fuselageType === "Wide-Body" &&
                     (col === "C" || col === "F")) && (
-                    <div className="aisle-space" />
-                  )}
+                      <div className="aisle-space" />
+                    )}
                 </React.Fragment>
               );
             })}

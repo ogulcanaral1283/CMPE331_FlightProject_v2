@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // 👈 buraya ekliyoruz
 import "./FlightSearch.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { FLIGHT_API_URL } from "../apiConfig";
+
+const API_URL = FLIGHT_API_URL;
 
 const getFlightDuration = (departure, arrival) => {
   const dep = new Date(departure);

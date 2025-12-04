@@ -6,7 +6,9 @@ import { useAuth } from "../auth/AuthContext";
 
 
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { AUTH_API_URL } from "../apiConfig";
+
+const API_URL = AUTH_API_URL;
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -34,7 +36,7 @@ export default function Login() {
       );
 
       const token = response.data.access_token;
-      
+
       if (!token) {
         throw new Error("Token alınamadı!");
       }
