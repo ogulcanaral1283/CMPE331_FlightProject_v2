@@ -69,8 +69,8 @@ Follow these steps to get the project running on your local machine.
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/airline-microservices.git
-    cd airline-microservices
+    git clone https://github.com/ogulcanaral1283/CMPE331_FlightProject_v2.git
+    cd CMPE331_FlightProject_v2
     ```
 
 2.  **Build and Run with Docker Compose**
@@ -131,4 +131,3 @@ docker compose up --build
 
 ---
 
-Made with ❤️ by [Your Name]
