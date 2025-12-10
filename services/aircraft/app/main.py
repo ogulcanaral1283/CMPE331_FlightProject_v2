@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import aircraft_router, airline_router
+from app.database import Base, engine
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

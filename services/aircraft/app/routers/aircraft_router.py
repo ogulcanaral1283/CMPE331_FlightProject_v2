@@ -7,8 +7,11 @@ from app.schemas.aircraft_schema import AircraftCreate, AircraftResponse
 router = APIRouter(prefix="/aircrafts", tags=["Aircrafts"])
 
 @router.get("/", response_model=list[AircraftResponse])
-def get_all_aircrafts(db: Session = Depends(get_db)):
-    return db.query(Aircraft).all()
+def get_all_aircrafts(airline_id: int = None, db: Session = Depends(get_db)):
+    query = db.query(Aircraft)
+    if airline_id:
+        query = query.filter(Aircraft.airline_id == airline_id)
+    return query.all()
 
 @router.get("/{aircraft_id}", response_model=AircraftResponse)
 def get_aircraft(aircraft_id: int, db: Session = Depends(get_db)):

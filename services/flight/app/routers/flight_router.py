@@ -14,8 +14,9 @@ from app.schemas.flight_schema import FlightDetailsSchema
 router = APIRouter(prefix="/flights", tags=["Flights"])
 
 @router.get("/", response_model=list[FlightResponse])
-def get_all_flights(db: Session = Depends(get_db)):
-    return flight_service.get_all_flights(db)
+@router.get("/", response_model=list[FlightResponse])
+def get_all_flights(airline_id: int = None, db: Session = Depends(get_db)):
+    return flight_service.get_all_flights(db, airline_id)
 
 @router.get("/id/{flight_id}", response_model=FlightResponse)
 def get_flight(flight_id: int, db: Session = Depends(get_db)):

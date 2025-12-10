@@ -13,5 +13,6 @@ class CabinCrew(Base):
     known_languages = Column(ARRAY(String))
     attendant_type = Column(String)  # chief, regular, chef
     vehicle_restrictions = Column(ARRAY(String))
+    
 
     flight_crews = relationship("FlightCrew", back_populates="cabin_crews")

@@ -31,7 +31,8 @@ class FlightDetailsSchema(BaseModel):
         from_attributes = True
 
 class FlightCreate(FlightBase):
-    pass
+    pilot_ids: List[int] = []
+    crew_ids: List[int] = []
 
 class FlightResponse(FlightBase):
     flight_id: int

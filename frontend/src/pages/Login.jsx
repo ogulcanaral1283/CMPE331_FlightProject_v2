@@ -44,6 +44,21 @@ export default function Login() {
       localStorage.setItem("token", token);
       localStorage.setItem("username", username);
 
+      // Fetch User Details to get Airline ID
+      try {
+        const userRes = await axios.get(`http://localhost:8060/users/?username=${username}`);
+        if (userRes.data && userRes.data.length > 0) {
+          const user = userRes.data[0];
+          if (user.airline_id) {
+            localStorage.setItem("airline_id", user.airline_id);
+          } else {
+            localStorage.removeItem("airline_id");
+          }
+        }
+      } catch (err) {
+        console.error("User details fetch error:", err);
+      }
+
       navigate("/admin");
     } catch (error) {
       setError("❌ Kullanıcı adı veya şifre hatalı!");

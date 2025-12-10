@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: passenger-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: passenger-service
+  template:
+    metadata:
+      labels:
+        app: passenger-service
+    spec:
+      containers:
+        - name: passenger-service
+          image: airline-passenger:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8030
+          envFrom:
+            - configMapRef:
+                name: airline-config
+            - secretRef:
+                name: airline-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: passenger-service
+spec:
+  selector:
+    app: passenger-service
+  ports:
+    - protocol: TCP
+      port: 8030
+      targetPort: 8030

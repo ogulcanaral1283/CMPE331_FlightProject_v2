@@ -8,11 +8,13 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    airline_id: Optional[int] = None
 
 
 class UserResponse(UserBase):
     id: int
     role: Optional[str]
+    airline_id: Optional[int]
 
     class Config:
 

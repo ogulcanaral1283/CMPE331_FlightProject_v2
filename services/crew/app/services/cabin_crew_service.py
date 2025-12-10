@@ -3,7 +3,9 @@ from app.models.cabin_crew_model import CabinCrew
 from app.schemas.cabin_crew_schema import CabinCrewCreate
 
 def get_all_cabin_crews(db: Session):
-    return db.query(CabinCrew).all()
+    query = db.query(CabinCrew)
+    # airline_id removed from model
+    return query.all()
 
 def get_cabin_crew(attendant_id: int, db: Session):
     return db.query(CabinCrew).filter(CabinCrew.attendant_id == attendant_id).first()

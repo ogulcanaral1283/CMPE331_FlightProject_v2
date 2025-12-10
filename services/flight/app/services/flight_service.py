@@ -5,8 +5,11 @@ from app.models.passenger_model import Passenger
 from app.models.aircraft_model import Aircraft
 from fastapi import HTTPException
 
-def get_all_flights(db: Session):
-    return db.query(Flight).all()
+def get_all_flights(db: Session, airline_id: int = None):
+    query = db.query(Flight)
+    if airline_id:
+        query = query.filter(Flight.airline_id == airline_id)
+    return query.all()
 
 def get_flight_by_id(flight_id: int, db: Session):
     return db.query(Flight).filter(Flight.flight_id == flight_id).first()
@@ -57,8 +60,29 @@ def get_flight_details_service(flight_number: str, db: Session):
     }
 
 def create_flight(flight_data: FlightCreate, db: Session):
-    new_flight = Flight(**flight_data.dict())
+    # 1. Extract crew IDs using model_dump (Pydantic v2) or dict()
+    flight_dict = flight_data.dict()
+    pilot_ids = flight_dict.pop("pilot_ids", [])
+    crew_ids = flight_dict.pop("crew_ids", [])
+
+    # 2. Create Flight
+    new_flight = Flight(**flight_dict)
     db.add(new_flight)
+    db.commit()
+    db.refresh(new_flight)
+
+    # 3. Assign Pilots
+    from app.models.flight_pilot import FlightPilot
+    for pid in pilot_ids:
+        flight_pilot = FlightPilot(flight_id=new_flight.flight_id, pilot_id=pid)
+        db.add(flight_pilot)
+
+    # 4. Assign Cabin Crew
+    from app.models.flight_crews import FlightCrew
+    for cid in crew_ids:
+        flight_crew = FlightCrew(flight_id=new_flight.flight_id, attendant_id=cid)
+        db.add(flight_crew)
+
     db.commit()
     db.refresh(new_flight)
     return new_flight

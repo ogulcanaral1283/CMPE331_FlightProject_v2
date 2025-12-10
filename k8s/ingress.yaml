@@ -1,0 +1,81 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airline-ingress
+  annotations:
+    # Rewrite target annotation for NGINX Ingress Controller
+    # captures the group after /api/service and passes it as path
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # Optional: SSL Redirect (if TLS is configured)
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  # tls:
+  #   - hosts:
+  #       - airline.local
+  #     secretName: airline-tls
+  rules:
+    - host: airline.local
+      http:
+        paths:
+          # Frontend (Root)
+          - path: /()?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
+
+          # User Service
+          - path: /api/user(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8060
+
+          # Auth Service
+          - path: /api/auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8010
+
+          # Flight Service
+          - path: /api/flight(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: flight-service
+                port:
+                  number: 8020
+
+          # Passenger Service
+          - path: /api/passenger(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: passenger-service
+                port:
+                  number: 8030
+
+          # Aircraft Service
+          - path: /api/aircraft(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: aircraft-service
+                port:
+                  number: 8040
+
+          # Crew Service
+          - path: /api/crew(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: crew-service
+                port:
+                  number: 8050

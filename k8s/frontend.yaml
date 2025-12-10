@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: airline-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            # The frontend runs in the browser, so it needs URLs accessible from the browser.
+            # We will use localhost and rely on 'kubectl port-forward' for access.
+            - name: REACT_APP_AUTH_URL
+              value: "http://localhost:8010"
+            - name: REACT_APP_USER_URL
+              value: "http://localhost:8060"
+            - name: REACT_APP_FLIGHT_URL
+              value: "http://localhost:8020"
+            - name: REACT_APP_PASSENGER_URL
+              value: "http://localhost:8030"
+            - name: REACT_APP_AIRCRAFT_URL
+              value: "http://localhost:8040"
+            - name: REACT_APP_CREW_URL
+              value: "http://localhost:8050"
+            - name: CHOKIDAR_USEPOLLING  # Useful for hot-reload in some envs, maybe not critical here but good to keep
+              value: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  # Use LoadBalancer to try and expose it automatically on localhost:3000 (Docker Desktop)
+  # Or NodePort if standard K8s.
+  type: LoadBalancer 
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

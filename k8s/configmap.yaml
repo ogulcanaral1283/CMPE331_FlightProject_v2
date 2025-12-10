@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airline-config
+data:
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "airline_db"
+  DB_USER: "postgres"
+  # Service URLs for internal communication (ClusterDNS names)
+  # Format: <service-name>.<namespace>.svc.cluster.local or just <service-name>
+  AUTH_SERVICE_URL: "http://auth-service:8010"
+  USER_SERVICE_URL: "http://user-service:8060"
+  FLIGHT_SERVICE_URL: "http://flight-service:8020"
+  PASSENGER_SERVICE_URL: "http://passenger-service:8030"
+  AIRCRAFT_SERVICE_URL: "http://aircraft-service:8040"
+  CREW_SERVICE_URL: "http://crew-service:8050"

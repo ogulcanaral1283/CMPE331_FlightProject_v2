@@ -21,7 +21,8 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         username=user_data.username,
         hashed_password=hashed_pw,
-        role="user"  # varsayılan user
+        role="user",  # varsayılan user
+        airline_id=user_data.airline_id
     )
 
     db.add(new_user)
@@ -31,6 +32,8 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.get("/", response_model=list[UserResponse])
-def get_all_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
+def get_all_users(username: str = None, db: Session = Depends(get_db)):
+    query = db.query(User)
+    if username:
+        query = query.filter(User.username == username)
+    return query.all()

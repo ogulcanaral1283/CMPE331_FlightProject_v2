@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crew-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crew-service
+  template:
+    metadata:
+      labels:
+        app: crew-service
+    spec:
+      containers:
+        - name: crew-service
+          image: airline-crew:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8050
+          envFrom:
+            - configMapRef:
+                name: airline-config
+            - secretRef:
+                name: airline-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crew-service
+spec:
+  selector:
+    app: crew-service
+  ports:
+    - protocol: TCP
+      port: 8050
+      targetPort: 8050

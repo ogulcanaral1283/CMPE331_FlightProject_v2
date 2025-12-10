@@ -11,6 +11,8 @@ import { AuthProvider } from "./auth/AuthContext"; // ✅ ÖNEMLİ
 import FlightsPage from "./pages/FlightsPage";
 import SelectPassengers from "./pages/SelectPassengers";
 import BookingSuccess from "./pages/BookingSuccess";
+import RosterManagement from "./pages/RosterManagement";
+import CrewManagement from "./pages/CrewManagement";
 
 
 
@@ -38,12 +40,20 @@ function App() {
 
           <Route path="/login" element={<Login />} />
 
-          {/* 🔒 Admin sayfası token varsa erişilir */}
+          {/* 🔒 Admin Routes */}
           <Route
-            path="/admin/*"
+            path="/admin"
             element={
               <PrivateRoute>
                 <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/roster"
+            element={
+              <PrivateRoute>
+                <RosterManagement />
               </PrivateRoute>
             }
           />
@@ -54,12 +64,20 @@ function App() {
                 <FlightsPage />
               </PrivateRoute>
             }
-          />  
+          />
 
+          <Route
+            path="/admin/users"
+            element={
+              <PrivateRoute>
+                <CrewManagement />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
-      
+
   );
 }
 

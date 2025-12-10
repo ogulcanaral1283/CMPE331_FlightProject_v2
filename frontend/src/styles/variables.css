@@ -1,0 +1,53 @@
+:root {
+  /* BRAND COLORS */
+  --color-primary: #3699ff;
+  --color-primary-active: #0073e9;
+  --color-secondary: #e4e6ef;
+
+  /* SIDEBAR (Dark Premium Theme) */
+  --sidebar-bg: #1e1e2d;
+  --sidebar-text: #a2a3b7;
+  --sidebar-text-hover: #ffffff;
+  --sidebar-item-active-bg: #1b1b28;
+  --sidebar-width: 260px;
+
+  /* BACKGROUNDS */
+  --bg-body: #f3f6f9;
+  --bg-card: #ffffff;
+  --bg-hover: #f3f6f9;
+
+  /* TEXT */
+  --text-dark: #3f4254;
+  --text-muted: #b5b5c3;
+  --text-light: #ffffff;
+
+  /* STATES */
+  --success: #1bc5bd;
+  --warning: #ffa800;
+  --danger: #f64e60;
+  --info: #8950fc;
+
+  /* SPACING */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* SHADOWS (Soft & Premium) */
+  --shadow-card: 0px 0px 20px 0px rgba(76, 87, 125, 0.02);
+  --shadow-float: 0 10px 30px 0 rgba(82, 63, 105, 0.05);
+
+  /* BORDER RADIUS */
+  --radius-sm: 0.42rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-circle: 50%;
+
+  /* FONTS */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-base: 13px;
+  --font-size-heading: 1.25rem;
+  --font-weight-bold: 600;
+  --font-weight-normal: 400;
+}

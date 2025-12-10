@@ -1,12 +1,11 @@
-import AdminSidebar from "../components/AdminSidebar";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-
+import AdminLayout from "../components/layout/AdminLayout";
+import StatCard from "../components/ui/StatCard";
+import DashboardChart from "../components/ui/DashboardChart";
 import { FLIGHT_API_URL, PASSENGER_API_URL, AIRCRAFT_API_URL } from "../apiConfig";
 
 export default function AdminDashboard() {
-  const username = localStorage.getItem("username") || "Admin";
   const [stats, setStats] = useState({
     total_flights: 0,
     total_passengers: 0,
@@ -17,15 +16,15 @@ export default function AdminDashboard() {
     const fetchData = async () => {
       try {
         const [flightsRes, passengersRes, airlinesRes] = await Promise.all([
-          axios.get(`${FLIGHT_API_URL}/flights`),
-          axios.get(`${PASSENGER_API_URL}/passengers`),
-          axios.get(`${AIRCRAFT_API_URL}/airlines`)
+          axios.get(`${FLIGHT_API_URL}/flights`).catch(() => ({ data: [] })),
+          axios.get(`${PASSENGER_API_URL}/passengers`).catch(() => ({ data: [] })),
+          axios.get(`${AIRCRAFT_API_URL}/airlines`).catch(() => ({ data: [] }))
         ]);
 
         setStats({
-          total_flights: flightsRes.data.length,
-          total_passengers: passengersRes.data.length,
-          total_airlines: airlinesRes.data.length
+          total_flights: flightsRes.data.length || 0,
+          total_passengers: passengersRes.data.length || 0,
+          total_airlines: airlinesRes.data.length || 0
         });
       } catch (err) {
         console.error("Stats yüklenemedi:", err);
@@ -35,37 +34,58 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  // Mock data for charts
+  const passengerData = [
+    { name: 'Mon', uv: 2000 },
+    { name: 'Tue', uv: 3000 },
+    { name: 'Wed', uv: 4500 },
+    { name: 'Thu', uv: 3200 },
+    { name: 'Fri', uv: 5000 },
+    { name: 'Sat', uv: 4800 },
+    { name: 'Sun', uv: 5500 },
+  ];
 
   return (
-    <div style={styles.container}>
-      <AdminSidebar />
+    <AdminLayout title="Dashboard Overview">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--spacing-lg)', marginBottom: 'var(--spacing-lg)' }}>
+        <StatCard
+          title="Total Passengers"
+          value={`${(stats.total_passengers / 1000).toFixed(1)}K`}
+          change="13%"
+          trend="up"
+        />
+        <StatCard
+          title="Total Flights"
+          value={stats.total_flights}
+          change="8%"
+          trend="up"
+        />
+        <StatCard
+          title="Airlines Active"
+          value={stats.total_airlines}
+          change="2%"
+          trend="down"
+        />
+        <StatCard
+          title="Avg Load Factor"
+          value="89%"
+          change="5%"
+          trend="up"
+        />
+      </div>
 
-      <div style={styles.content}>
-        <h1>Merhaba, {username} 👋</h1>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: 'var(--spacing-lg)' }}>
+        <DashboardChart title="Passengers Over Time" data={passengerData} color="var(--success)" />
+        <DashboardChart title="Flight Traffic" type="bar" color="var(--warning)" />
+      </div>
 
-        <div style={styles.cards}>
-          <div style={styles.card}>✈️ Toplam Uçuş: {stats.total_flights || 0}</div>
-          <div style={styles.card}>🧑‍✈️ Toplam Yolcu: {stats.total_passengers || 0}</div>
-          <div style={styles.card}>🏢 Havayolu Şirketleri: {stats.total_airlines || 0}</div>
+      {/* Roster Preview Section (Static for now) */}
+      <div style={{ marginTop: 'var(--spacing-lg)', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-lg)', boxShadow: 'var(--shadow-card)' }}>
+        <h3 style={{ marginBottom: 'var(--spacing-md)' }}>Recent Roster Updates</h3>
+        <div style={{ color: 'var(--text-muted)' }}>
+          No recent roster updates available.
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
-
-const styles = {
-  container: { display: "flex" },
-  content: { flex: 1, padding: "20px" },
-  cards: {
-    display: "flex",
-    gap: "20px",
-    marginTop: "20px"
-  },
-  card: {
-    background: "#eee",
-    padding: "20px",
-    borderRadius: "10px",
-    fontSize: "20px",
-    flex: "1"
-  }
-};

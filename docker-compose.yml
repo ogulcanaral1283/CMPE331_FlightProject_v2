@@ -111,16 +111,16 @@ services:
     command: npm start
 
   db:
-    image: postgres:16
+    image: postgres:17
     container_name: airline_postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-volumes: 
+volumes:
   postgres_data:
